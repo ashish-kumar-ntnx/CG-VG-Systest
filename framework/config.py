@@ -1,0 +1,35 @@
+SETUP_NUM = 2
+
+if SETUP_NUM == 1:
+  # Cross-AZ AHV-AHV Setup
+  SETUP_TYPE="AHV"
+  SRC_PC_IP="10.45.72.105"
+  SRC_CLUS_LIST=["PC-A-PE-1"]
+  TGT_PC_IP="10.45.72.75"
+  TGT_CLUS_LIST=["PC-B-PE-1"]
+  PROTECTION_TYPE="category"
+  BUILD="6.1"
+
+elif SETUP_NUM == 2:
+  # Cross-AZ AHV-AHV Setup
+  SETUP_TYPE="AHV"
+  SRC_PC_IP="10.45.72.250"
+  SRC_CLUS_LIST=["PC-A-PE-1"]
+  TGT_PC_IP="10.46.216.2"
+  TGT_CLUS_LIST=["PC-B-PE-1"]
+  PROTECTION_TYPE="category"
+  BUILD="master"
+
+elif SETUP_NUM == 3:
+  # Self-AZ CHDR Setup
+  SETUP_TYPE="ESX"
+  SRC_PC_IP="10.45.73.26"
+  SRC_CLUS_LIST=["PC-A-PE-1"]
+  TGT_PC_IP="10.45.73.26"
+  TGT_CLUS_LIST=["PC-A-PE-2"]
+  PROTECTION_TYPE="explicit"
+  BUILD="6.1"
+
+DEFAULT_CHAP_PASSWORD = "Nutanix.1234"
+##SRC_CLUS_LIST=["PC-A-PE-1", "PC-A-PE-2"]
+##TGT_CLUS_LIST=["PC-B-PE-1", "PC-B-PE-2"]

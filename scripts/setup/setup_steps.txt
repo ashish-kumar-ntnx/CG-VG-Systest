@@ -1,0 +1,20 @@
+1. Create Images.
+2. Create subnets.
+3. Create containers.
+4. Create VMs.
+5. Install NGT on all VMs.
+6. Enable iscsi on all VMs. a.) iscsi install b.) iscsi service start.
+7. Create VGs.
+8. Add Disks to the VG.
+9. Do VM VG attachment. (IQN)
+10. Do iscsi login inside VM.
+11. Check that required disks are showing up inside VM.
+12. Enable vdbench.
+13. Add categories to the VMs and VGs.
+14. Protect the categories using PR.
+15. Check for protection/replication.
+16. Try CG local-restore/remote-restore/migrate.
+17. Try VG local-restore/remote-restore/migrate.
+18. Create recovery plans with VM VG attachment.
+19. Trigger RPJ VALIDATE/PFO/UPFO/TFO.
+20. Do EI testing with all these operations.

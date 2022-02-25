@@ -1,0 +1,4 @@
+cryptography==2.6.1
+paramiko==2.6
+pyOpenSSL==17.0.0
+pycrypto==2.6.1
