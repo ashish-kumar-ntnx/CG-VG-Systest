@@ -6,7 +6,7 @@ elif SETUP_TYPE == "AHV":
   from framework.vm_entity import VM
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 vm_obj = VM(IP)
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
@@ -16,6 +16,8 @@ END = 101
 
 for i in range(START, END):
   vm_name = "vm-" + str(i)
+  if vm_name not in vm_name_uuid_map:
+    continue
   vm_uuid = vm_name_uuid_map[vm_name]
   vm = vm_obj.get(vm_uuid=vm_uuid)
   print "Removing categories from VM: {0} - {1}".format(vm_name, vm_uuid)

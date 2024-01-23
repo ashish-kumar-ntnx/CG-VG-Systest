@@ -22,16 +22,16 @@ vm_name_uuid_map = vm_obj.get_name_uuid_map()
 cluster_obj = Cluster(IP)
 c1 = cluster_obj.get(cluster_name=CLUS_LIST[0])
 c1_dsip = c1.get_dsip()
-#c1_dsip = "10.45.135.0"
+c1_dsip = "10.45.129.24"
 #c2 = cluster_obj.get(cluster_name=CLUS_LIST[1])
 #c2_dsip = c2.get_dsip()
 c2_dsip = None
 
 sd_disk_map = dict()
 
-DISK_LENGTH = 21
+DISK_LENGTH = 2
 START = 1
-END = 101
+END = 55
 
 vm_list = list()
 for i in range(START, END, 10):
@@ -50,10 +50,11 @@ def login(vm_name, dsip):
   print "\n#### VM: {0}, {1} doing iscsi target_login ####".format(vm_name, vm_uuid)
   cmd = "sudo systemctl restart iscsid"
   v1.execute(cmd)
-  if vm_name not in vm_list:
-    v1.iscsi_target_login(dsip=dsip)
-  else:
-    v1.iscsi_target_login(dsip=dsip, target_chap_secret=DEFAULT_CHAP_PASSWORD)
+  v1.iscsi_target_login(dsip=dsip, target_chap_secret=DEFAULT_CHAP_PASSWORD)
+  #if vm_name not in vm_list:
+  #  v1.iscsi_target_login(dsip=dsip)
+  #else:
+  #  v1.iscsi_target_login(dsip=dsip, target_chap_secret=DEFAULT_CHAP_PASSWORD)
   time.sleep(0.2)
   print "{0}, {1} Disks".format(vm_name, len(v1.get_sd_disk_list().split(" ")))
   

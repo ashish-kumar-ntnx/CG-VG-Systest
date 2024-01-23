@@ -3,7 +3,7 @@ from framework.category_entity import Category
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST, PROTECTION_TYPE
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 vg_obj = VG(IP)
 cat_obj = Category(IP)
@@ -20,13 +20,15 @@ vgs_2 = ["vg-a-" + str(i) for i in range(101, 201)]
 #vgs_2 = ["vg-b-" + str(i) for i in range(1, 11)]
 #vgs_3 = ["vg-b-" + str(i) for i in range(132, 201)]
 vgs = vgs_1 + vgs_2
-print vgs
+#print vgs
+#vgs = ["vg-a-1", "vg-a-2"]
 
 def get_vg_category_list():
   vg_category_list = list()
   vg_index = 1
   for i in range(1, 11):
     if PROTECTION_TYPE == "category":
+      #cat_key = "self-az-cat-" + str(i)
       cat_key = "cat-" + str(i)
       cat_val = "val-" + str(i)
     elif PROTECTION_TYPE == "explicit":
@@ -34,6 +36,7 @@ def get_vg_category_list():
       cat_val = "pr-" + str(i)
     #cat_uuid = cat_key_uuid_map[cat_key]
     cat = cat_obj.get(cat_key=cat_key, cat_val=cat_val)
+    #print cat.uuid
     cat_uuid = cat.uuid
     for i in range(10):
       vg_name_list = ["vg-a-" + str(vg_index), "vg-a-" + str(vg_index+100)]

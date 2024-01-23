@@ -40,6 +40,7 @@ def del_vg(vg_name):
 
 
 vg_prefix = "vg-a-"
+#vg_prefix = "Nutanix-Test-vg-a-"
 START, END = 1, 201
 for i in range(START, END, 4):
   threads = list()

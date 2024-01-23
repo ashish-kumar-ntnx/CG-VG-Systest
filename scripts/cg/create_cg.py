@@ -9,7 +9,7 @@ elif SETUP_TYPE == "AHV":
   from framework.vm_entity import VM
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 cg = CG(IP)
 vm = VM(IP)
 vg = VG(IP)

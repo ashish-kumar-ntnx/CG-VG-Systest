@@ -5,20 +5,22 @@ from datetime import datetime
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 SRC_IP = SRC_PC_IP
-TGT_IP = TGT_PC_IP
+#TGT_IP = TGT_PC_IP
 
 #SRC_IP, TGT_IP = "10.40.216.116", "10.40.216.116"
 
 vm_obj = VM(SRC_IP)
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
+print vm_name_uuid_map
 src_rpt_obj = RecoveryPoint(SRC_IP)
-rmt_rpt_obj = RecoveryPoint(TGT_IP)
+#rmt_rpt_obj = RecoveryPoint(TGT_IP)
 
-START, END = 1, 201
+START, END = 1, 161
 vm_prefix = "vm-"
 
 for i in range(START, END):
-  vm_name = vm_prefix + str(i)
+  vm_name = "ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_" + str(i).rjust(4, '0')
+  #vm_name = vm_prefix + str(i)
   vm_uuid = vm_name_uuid_map[vm_name]
   print "Finding all the recovery_points of the VM: {0} - {1}".format(vm_name, vm_uuid)
 
@@ -48,7 +50,7 @@ for i in range(START, END):
       print "RPT: {0} - LAU: {1} - {2} GMT".format(rpt_uuid, lau, create_time)
   else:
     print "\nNo RecoveryPoints found on Source: {0}\n".format(SRC_IP)
-
+"""
   out = rmt_rpt_obj.get_groups_response(filter_criteria)
   rpt_uuid_list = list()
   if out["filtered_group_count"] > 0:
@@ -62,3 +64,4 @@ for i in range(START, END):
   else:
     print "\nNo RecoveryPoints found on Target: {0}\n".format(TGT_IP)
   print "\n"
+"""

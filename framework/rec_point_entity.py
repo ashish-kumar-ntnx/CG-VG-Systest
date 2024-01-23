@@ -1,4 +1,5 @@
 from framework.lib import *
+from framework.const import get_ntnx_req_id
 from framework.cluster_entity import Cluster
 import time
 
@@ -196,9 +197,11 @@ class RecoveryPoint(object):
   def list_all(self):
     pass
 
-  def get_all_recovery_points(self, return_objects=False):
+  def get_all_recovery_points(self, return_objects=False, cluster_uuid=None):
     url = "api/nutanix/v3/groups"
     payload = {"entity_type":"recovery_point","group_member_attributes":[{"attribute":"vm_live_entity_uuid_list"},{"attribute":"disk_group_live_entity_uuid_list"}]}
+    if cluster_uuid:
+      payload["filter_criteria"] = "_master_cluster_uuid_=={0}".format(cluster_uuid)
     r = send_request("POST", self.pc_ip, url, json=payload)
     out = r.json()
     total_rpt = out["filtered_entity_count"]
@@ -246,8 +249,10 @@ class RecoveryPoint(object):
     if not uuid:
       uuid = self.uuid
     print "Deleting Recovery Point: {0}".format(uuid)
-    url = "api/dataprotection/v4.0.a1/config/recovery-points/{0}".format(uuid)
-    r = send_request("DELETE", self.pc_ip, url)
+    #url = "api/dataprotection/v4.0.a1/config/recovery-points/{0}".format(uuid)
+    url = "api/dataprotection/v4.0.a5/config/recovery-points/{0}".format(uuid)
+    ntnx_req_id = get_ntnx_req_id()
+    r = send_request("DELETE", self.pc_ip, url, ntnx_req_id=ntnx_req_id)
     print r.status_code
 
   def restore_rec_point(self, rpt_uuid=None):

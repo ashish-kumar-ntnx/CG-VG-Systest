@@ -1,34 +1,39 @@
-SETUP_NUM = 2
+SETUP_NUM = 3 
 
 if SETUP_NUM == 1:
   # Cross-AZ AHV-AHV Setup
   SETUP_TYPE="AHV"
-  SRC_PC_IP="10.45.72.105"
+  SRC_PC_IP="10.45.72.22" #master
+  #SRC_PC_IP="10.45.72.199" #master
+  #SRC_PC_IP="10.40.186.24" #master
   SRC_CLUS_LIST=["PC-A-PE-1"]
-  TGT_PC_IP="10.45.72.75"
+  TGT_PC_IP="10.40.185.222" #master
   TGT_CLUS_LIST=["PC-B-PE-1"]
   PROTECTION_TYPE="category"
-  BUILD="6.1"
+  BUILD="master"
 
 elif SETUP_NUM == 2:
   # Cross-AZ AHV-AHV Setup
-  SETUP_TYPE="AHV"
-  SRC_PC_IP="10.45.72.250"
+  SETUP_TYPE="ESX"
+  SRC_PC_IP="10.46.144.59"
   SRC_CLUS_LIST=["PC-A-PE-1"]
-  TGT_PC_IP="10.46.216.2"
+  TGT_PC_IP="10.46.144.59"
   TGT_CLUS_LIST=["PC-B-PE-1"]
   PROTECTION_TYPE="category"
   BUILD="master"
 
 elif SETUP_NUM == 3:
   # Self-AZ CHDR Setup
-  SETUP_TYPE="ESX"
-  SRC_PC_IP="10.45.73.26"
+  SETUP_TYPE="AHV"
+  #SETUP_TYPE="ESX"
+  #SRC_PC_IP="10.40.186.119"
+  SRC_PC_IP="10.40.185.209"
   SRC_CLUS_LIST=["PC-A-PE-1"]
-  TGT_PC_IP="10.45.73.26"
+  TGT_PC_IP="10.45.72.229"
   TGT_CLUS_LIST=["PC-A-PE-2"]
-  PROTECTION_TYPE="explicit"
-  BUILD="6.1"
+  #PROTECTION_TYPE="explicit"
+  PROTECTION_TYPE="category"
+  BUILD="master"
 
 DEFAULT_CHAP_PASSWORD = "Nutanix.1234"
 ##SRC_CLUS_LIST=["PC-A-PE-1", "PC-A-PE-2"]

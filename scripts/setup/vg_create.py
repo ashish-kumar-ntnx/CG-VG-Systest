@@ -13,8 +13,8 @@ from setup_config import *
 IP = SRC_PC_IP
 CLUS_LIST = SRC_CLUS_LIST
 
-IP = TGT_PC_IP
-CLUS_LIST = TGT_CLUS_LIST
+#IP = TGT_PC_IP
+#CLUS_LIST = TGT_CLUS_LIST
 
 clus_obj = Cluster(IP)
 ctr_obj = Ctr(IP)
@@ -25,16 +25,18 @@ vg_name_uuid_map = vg_obj.get_name_uuid_map()
 for clus_name in CLUS_LIST:
   ctr_name_uuid_map = ctr_obj.get_name_uuid_map(cluster_name=clus_name)
   clus = clus_obj.get(cluster_name=clus_name)
-  cluster_uuid = clus.uuid
-  #cluster_uuid="0005c91e-935e-3827-0000-0000000109fe"
+  #cluster_uuid = clus.uuid
+  cluster_uuid="0006026b-4d8f-dfb2-064c-ac1f6b1c671c"
 
   if clus_name in ["PC-A-PE-1", "PC-B-PE-1"]:
+    #vg_prefix = "DB-VG-"
     vg_prefix = "vg-a-"
   elif clus_name in ["PC-A-PE-2", "PC-B-PE-2"]:
     vg_prefix = "vg-b-"
 
-  start, end = 1, 101
+  start, end = 1, 55
   for i in range(start, end):
+    #vg_name_list = [vg_prefix + str(i)]
     vg_name_list = [vg_prefix + str(i), vg_prefix + str(i + 100)]
     for vg_name in vg_name_list:
       if vg_name in vg_name_uuid_map:

@@ -3,7 +3,7 @@ from framework.protection_rule_entity import ProtectionRule
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 pr = ProtectionRule(IP)
 """
 pr_category_list = [
@@ -50,68 +50,70 @@ pr_category_list = [
 ]
 exclude_pr_list = ["pr-3-a2-to-b2", "pr-4-a2-to-b2"]
 """
+#cat_prefix = "self-az-cat-"
+cat_prefix = "cat-"
 
 pr_category_list = [
   {
     "pr_name": "pr-1",
     "cat_list": [
-      {"cat-1": "val-1"}
+      {"{0}1".format(cat_prefix): "val-1"}
     ]
   },
   {
     "pr_name": "pr-2",
     "cat_list": [
-      {"cat-2": "val-2"}
+      {"{0}2".format(cat_prefix): "val-2"}
     ]
   },
   {
     "pr_name": "pr-3",
     "cat_list": [
-      {"cat-3": "val-3"}
+      {"{0}3".format(cat_prefix): "val-3"}
     ]
   },
   {
     "pr_name": "pr-4",
     "cat_list": [
-      {"cat-4": "val-4"}
+      {"{0}4".format(cat_prefix): "val-4"}
     ]
   },
   {
     "pr_name": "pr-5",
     "cat_list": [
-      {"cat-5": "val-5"}
+      {"{0}5".format(cat_prefix): "val-5"}
     ]
   },
   {
     "pr_name": "pr-6",
     "cat_list": [
-      {"cat-6": "val-6"}
+      {"{0}6".format(cat_prefix): "val-6"}
     ]
   },
   {
     "pr_name": "pr-7",
     "cat_list": [
-      {"cat-7": "val-7"}
+      {"{0}7".format(cat_prefix): "val-7"}
     ]
   },
   {
     "pr_name": "pr-8",
     "cat_list": [
-      {"cat-8": "val-8"}
+      {"{0}8".format(cat_prefix): "val-8"}
     ]
   },
   {
     "pr_name": "pr-9",
     "cat_list": [
-      {"cat-9": "val-9"}
+      {"{0}9".format(cat_prefix): "val-9"}
+    ]
+  },
+  {
+    "pr_name": "pr-10",
+    "cat_list": [
+      {"{0}10".format(cat_prefix): "val-10"}
     ]
   }
-  #{
-  #  "pr_name": "pr-10",
-  #  "cat_list": [
-  #    {"cat-10": "val-10"}
-  #  ]
-  #},
 ]
 exclude_pr_list = []
 

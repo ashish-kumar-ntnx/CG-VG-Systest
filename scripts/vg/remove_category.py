@@ -3,7 +3,7 @@ from framework.category_entity import Category
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 vg_obj = VG(IP)
 cat_obj = Category(IP)
@@ -13,8 +13,8 @@ cat_key_uuid_map = cat_obj.get_key_uuid_map()
 vgs = []
 vgs_1 = ["vg-a-" + str(i) for i in range(1, 101)]
 vgs_2 = ["vg-a-" + str(i) for i in range(101, 201)]
-#vgs_1 = ["vg-a-" + str(i) for i in range(1, 101)]
-#vgs_2 = ["vg-a-" + str(i) for i in range(101, 201)]
+#vgs_1 = ["vg-a-" + str(i) for i in range(1,11)]
+#vgs_2 = ["vg-a-" + str(i) for i in range(101, 111)]
 vgs = vgs_1 + vgs_2
 #vgs = vgs_1
 #print vgs

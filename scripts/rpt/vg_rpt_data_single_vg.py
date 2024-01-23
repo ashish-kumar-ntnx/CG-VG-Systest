@@ -5,14 +5,15 @@ from datetime import datetime
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 SRC_IP = SRC_PC_IP
-TGT_IP = TGT_PC_IP
+#SRC_IP = TGT_PC_IP
+#TGT_IP = TGT_PC_IP
 
 #SRC_IP, TGT_IP = "10.40.216.116", "10.40.216.116"
 
 vg_obj = VG(SRC_IP)
 vg_name_uuid_map = vg_obj.get_name_uuid_map()
 src_rpt_obj = RecoveryPoint(SRC_IP)
-rmt_rpt_obj = RecoveryPoint(TGT_IP)
+#rmt_rpt_obj = RecoveryPoint(TGT_IP)
 
 vg_name = sys.argv[1]
 
@@ -46,6 +47,7 @@ if out["filtered_group_count"] > 0:
 else:
   print "\nNo RecoveryPoints found on Source: {0}\n".format(SRC_IP)
 
+"""
 out = rmt_rpt_obj.get_groups_response(filter_criteria)
 rpt_uuid_list = list()
 if out["filtered_group_count"] > 0:
@@ -59,3 +61,4 @@ if out["filtered_group_count"] > 0:
 else:
   print "\nNo RecoveryPoints found on Target: {0}\n".format(TGT_IP)
 print "\n"
+"""

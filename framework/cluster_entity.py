@@ -41,6 +41,9 @@ class Cluster(object):
   def get_dsip(self):
     return self.spec["status"]["resources"]["network"]["external_data_services_ip"]
 
+  def get_v1_ip(self):
+    return self.spec["status"]["resources"]["network"]["external_ip"]
+
   def get_json(self):
     url = "api/nutanix/v3/clusters/{0}".format(self.uuid)
     r = send_request("GET", self.pc_ip, url)

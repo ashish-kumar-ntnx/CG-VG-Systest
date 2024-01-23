@@ -10,7 +10,6 @@ import time
 IP = SRC_PC_IP
 #IP = TGT_PC_IP
 vm_obj = VM(IP)
-vm_obj = VM(IP)
 
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
 
@@ -18,21 +17,62 @@ vm_list = list()
 for i in range(1, 101, 10):
   for j in range(3):
     vm_list.append("vm-" + str(i+j))
-vm_list = ['vm-12', 'vm-15', 'vm-18', 'vm-19', 'vm-21', 'vm-23', 'vm-25', 'vm-27', 'vm-31', 'vm-32', 'vm-33', 'vm-34', 'vm-37', 'vm-38', 'vm-4', 'vm-45', 'vm-52', 'vm-9']
+#vm_list = ['vm-89', 'vm-98', 'vm-99', 'vm-96', 'vm-97', 'vm-94', 'vm-100']
+vm_list = [147, 158, 150, 153, 155, 114, 110]
+
+vm_list = ['ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0027', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0118', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0034', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0040', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0033', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0019', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0100', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0088', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0098', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0105', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0014', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0106', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0081', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0036', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0084', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0104', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0113', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0092', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0037', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0022', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0031', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0032', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0029', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0099', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0028', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0091', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0082', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0085', 'ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_0018']
 
 START=1
-END=101
+END=55
+#END=101
 for i in range(START, END):
+  #if i not in vm_list:
+  #  continue
+  #vm_name = "DB-VM-" + str(i)
+  #vm_name = "ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_" + str(i).rjust(4, '0')
   vm_name = "vm-" + str(i)
   #if vm_name not in vm_list:
   #  continue
+  if vm_name not in vm_name_uuid_map:
+    print vm_name
   vm_uuid = vm_name_uuid_map[vm_name]
   v1 = vm_obj.get(vm_uuid)
+  #cmd = "sudo yum install java -y"
+  #_, out = v1.execute(cmd)
+  #cmd = "sudo sed -i 's/=enforcing/=disabled/' /etc/selinux/config"
+  #_, out = v1.execute(cmd)
+  #cmd = "yum install wget -y; wget http://uranus.corp.nutanix.com/~ashish.kumar/fdisk_format.sh; sh fdisk_format.sh"
+  #_, out = v1.execute(cmd)
+  #print out
   #cmd = 'echo "nutanix ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers'
   #cmd = 'echo -e "nutanix/4u\n" | sudo -S sh -c "echo \'nutanix ALL=(ALL) NOPASSWD:ALL\' >> /etc/sudoers"'
   #cmd = 'echo "nutanix ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers'
-  cmd = "sudo hostnamectl set-hostname {0}".format(vm_name)
-  _, out = v1.execute(cmd)
+  #cmd = "sudo hostnamectl set-hostname {0}".format(vm_name)
+  #cmd = "hostnamectl set-hostname {0}".format(vm_name)
+  #_, out = v1.execute(cmd)
+  #cmd = "fdisk -l"
+  #cmd = "chmod +x /home/nutanix/setup_vdbench50407.sh; /home/nutanix/setup_vdbench50407.sh"
+  #cmd = "cat /etc/rc.d/rc.local |grep vdbench"
+  #cmd = "cat /home/nutanix/vdbench50407/my_vdbench_param.txt | grep sd= |wc -l;ps -ef |grep vdbench"
+  #cmd = "rm -rf /var/lib/iscsi/nodes/*"
+  #cmd = "sed -i 's/VD_FILE=.*/VD_FILE=\/home\/nutanix\/vdbench50407\/my_vdbench_param.txt/g' /home/nutanix/vdbench50407/create_vd_bench_param.sh; cat /home/nutanix/vdbench50407/create_vd_bench_param.sh"
+  #cmd = "cat /home/nutanix/vdbench50407/my_vdbench_param.txt"
+  #cmd = "rm -f /home/nutanix/vdbench50407/my_vdbench_param.txt; wget http://uranus.corp.nutanix.com/~ashish.kumar/my_vdbench_param.txt -P /home/nutanix/vdbench50407"
+  #cmd = "sed -i 's/sudo //g' /etc/rc.local"
+  #cmd = "sed -i '\/root\/start_vdbench_vdi/d' /etc/rc.local"
+  #cmd = "sed -i 's/sudo fdisk/\/usr\/sbin\/fdisk/g' /home/nutanix/vdbench50407/create_vd_bench_param.sh; /usr/bin/sh /home/nutanix/vdbench50407/create_vd_bench_param.sh; grep SD -A2 /home/nutanix/vdbench50407/my_vdbench_param.txt; grep vdbench /etc/rc.local"
+  #cmd = "/usr/bin/sh /home/nutanix/vdbench50407/create_vd_bench_param.sh; grep SD -A4 /home/nutanix/vdbench50407/my_vdbench_param.txt; grep vdbench /etc/rc.local"
+  #_, out = v1.execute(cmd)
+  #print out
+  #cmd = "sed -i 's/\/home\/nutanix\/vdbench50407\/vdbench\.sh//g' /etc/rc.local; cd /etc/systemd/system/; wget http://uranus.corp.nutanix.com/~ashish.kumar/vdbench-exec.service; systemctl enable vdbench-exec.service; systemctl start vdbench-exec.service"
+  #_, out = v1.execute(cmd)
+  #print out
+  #cmd = "ps -ef |grep vdbench"
+  #cmd = "cd /home/nutanix/vdbench50407/; /usr/bin/sh create_vd_bench_param.sh ; cat /home/nutanix/vdbench50407/my_vdbench_param.txt | grep lun"
+  #_, out = v1.execute(cmd)
+  #print out
+  #cmd = "sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*; sudo sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*; sudo yum makecache --refresh"
+  #_, out = v1.execute(cmd)
   #cmd = "sudo bash; mkdir /tmp/mnt; mount /dev/sr0 /tmp/mnt; cd /tmp/mnt/installer/linux/; ./install_ngt.py"
   #cmd = "mkdir /tmp/mnt; sudo mount /dev/sr0 /tmp/mnt; sudo /tmp/mnt/installer/linux/install_ngt.py"
   #cmd = "sudo hostnamectl set-hostname {0}; sudo yum makecache fast; sudo yum install iscsi-initiator-utils -y; /usr/sbin/iscsid -version".format(vm_name)
@@ -43,6 +83,10 @@ for i in range(START, END):
   #cmd = "sudo hostnamectl set-hostname {0}; sudo yum makecache fast; sudo yum clean all".format(vm_name)
   #cmd = "sudo yum makecache fast; sudo yum clean all"
   #cmd = "sudo rm -rf /var/log/*"
+  #cmd = "sudo rm -rf /var/lib/iscsi/nodes/*"
+  #_, out = v1.execute(cmd)
+  #v1.enable_iscsi()/home/nutanix/vdbench50407/my_vdbench_param.txt
+  #cmd = "rm -f /usr/local/nutanix/ngt/dotenv.json; systemctl restart ngt_guest_agent"
+  cmd = 'echo -e "node.session.auth.authmethod = CHAP\nnode.session.auth.username = nutanix\nnode.session.auth.password = Nutanix.1234\ndiscovery.sendtargets.auth.authmethod = CHAP\ndiscovery.sendtargets.auth.username = nutanix\ndiscovery.sendtargets.auth.password = Nutanix.1234"  | sudo tee -a /etc/iscsi/iscsid.conf'
   _, out = v1.execute(cmd)
   print out
-  #v1.enable_iscsi()

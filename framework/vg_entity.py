@@ -2,7 +2,7 @@ from lib import *
 from cluster_entity import Cluster
 from category_entity import Category
 import datetime
-from const import VG_API_VERSION, VG_ETAG_REQUIRED
+from const import VG_API_VERSION, VG_ETAG_REQUIRED, get_ntnx_req_id
 
 class VG(object):
   def __init__(self, pc_ip, uuid=None, spec=None, name=None):
@@ -26,29 +26,32 @@ class VG(object):
       vg_spec["name"] = vg_name
       vg_spec["description"] = "VG: {0} on Cluster: {1}".format(vg_name, cluster_name)
       vg_spec["sharingStatus"] = "SHARED"
-      vg_spec["iscsiTargetPrefix"] = vg_name
+      #vg_spec["iscsiTargetPrefix"] = vg_name
+      vg_spec["targetPrefix"] = vg_name
       vg_spec["clusterReference"] = cluster_id
+      print vg_spec
       print "Creating VG: {0} ...".format(vg_name)
 
-    #url = "api/storage/v4.0.a1/config/volume-groups"
-    url = "api/storage/{0}/config/volume-groups".format(VG_API_VERSION)
-    print vg_spec
-    r = send_request("POST", self.pc_ip, url, json=vg_spec)
+    #url = "api/volumes/v4.0.a1/config/volume-groups"
+    url = "api/volumes/{0}/config/volume-groups".format(VG_API_VERSION)
+    #print vg_spec
+    ntnx_req_id = get_ntnx_req_id()
+    r = send_request("POST", self.pc_ip, url, json=vg_spec, ntnx_req_id=ntnx_req_id)
     out = r.json()
     print out
-    task_url = out["metadata"]["links"][0]["href"]
-    print "TASK URL: {0}".format(task_url)
-    return task_url
+    #task_url = out["metadata"]["links"][0]["href"]
+    #print "TASK URL: {0}".format(task_url)
+    #return task_url
 
   def remove(self):
-    url = "api/storage/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
     r = send_request("DELETE", self.pc_ip, url)
     print r.status_code
     out = r.json()
     return out["data"]["extId"]
 
   def list_all(self):
-    url = "api/storage/{0}/config/volume-groups".format(VG_API_VERSION)
+    url = "api/volumes/{0}/config/volume-groups".format(VG_API_VERSION)
     r = send_request("GET", self.pc_ip, url)
     out = r.json()
     total_count = out["metadata"]["totalAvailableResults"]
@@ -59,7 +62,8 @@ class VG(object):
       r = send_request("GET", self.pc_ip, limit_url)
       n_out = r.json()
 
-      if n_out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      #if n_out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      if "data" not in n_out or not n_out["data"]:
         continue
 
       if out:
@@ -90,12 +94,12 @@ class VG(object):
 
   def get(self, vg_name=None, vg_uuid=None):
     if vg_uuid:
-      url = "api/storage/{0}/config/volume-groups/{1}".format(VG_API_VERSION, vg_uuid)
+      url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, vg_uuid)
       r = send_request("GET", self.pc_ip, url)
       spec = r.json()["data"]
     else:
       out = self.list_all()
-      if out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      if "data" not in spec or not spec["data"]:
         print "There are no VG on this PC."
         return None
       for i in out["data"]:
@@ -108,10 +112,10 @@ class VG(object):
         return
     v = VG(self.pc_ip, uuid=vg_uuid, spec=spec, name=spec["name"])
     self.uuid = vg_uuid
-    v.iscsi_target = spec["iscsiTargetName"]
+    v.iscsi_target = spec["iscsiFeatures"]["iscsiTargetName"]
     v.cluster = spec["clusterReference"]
     v.category_list = self.get_categories()
-    #v.disk_list = self.get_disks()
+    v.disk_list = self.get_disks()
     v.iscsi_attachment_list = self.get_iscsi_attachments()
     #v.hyp_attachment_list = self.get_hyp_attachments()
     v.is_chap_enabled = None
@@ -120,34 +124,46 @@ class VG(object):
     return v
 
   def get_etag_header(self, vg_uuid):
-    url = "api/storage/{0}/config/volume-groups/{1}".format(VG_API_VERSION, vg_uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, vg_uuid)
     r = send_request("GET", self.pc_ip, url)
     etag = None
     if "Etag" in r.headers:
       etag = r.headers["Etag"]
     return etag
 
+  def update_name(self, new_name):
+    url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
+    spec = {"name": new_name, "sharingStatus": "SHARED", "extId": self.uuid}
+    etag = self.get_etag_header(self.uuid)
+    r = send_request("PATCH", self.pc_ip, url, json=spec, etag=etag)
+    print r.status_code
+
+
   # Disk ops
   def add_disk(self, disk_size=None, ctr_uuid=None, disk_spec=None):
-    url = "api/storage/{0}/config/volume-groups/{1}/disks".format(VG_API_VERSION, self.uuid)
-    r = send_request("POST", self.pc_ip, url, json=disk_spec)
-    out = r.json()
+    url = "api/volumes/{0}/config/volume-groups/{1}/disks".format(VG_API_VERSION, self.uuid)
+    ntnx_req_id = get_ntnx_req_id() 
+    r = send_request("POST", self.pc_ip, url, json=disk_spec, ntnx_req_id=ntnx_req_id)
+    #out = r.json()
+    print r.status_code
     
 
   def remove_disk(self, disk_uuid):
-    url = "api/storage/{0}/config/volume-groups/{1}/disks/{2}".format(VG_API_VERSION, self.uuid, disk_uuid)
-    r = send_request("DELETE", self.pc_ip, url)
+    url = "api/volumes/{0}/config/volume-groups/{1}/disks/{2}".format(VG_API_VERSION, self.uuid, disk_uuid)
+    ntnx_req_id = get_ntnx_req_id()
+    r = send_request("DELETE", self.pc_ip, url, ntnx_req_id=ntnx_req_id)
     print r.status_code
 
   def update_disk(self):
     pass
 
   def get_disks(self):
-    url = "api/storage/{0}/config/volume-groups/{1}/disks".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/disks".format(VG_API_VERSION, self.uuid)
     r = send_request("GET", self.pc_ip, url)
     spec = r.json()
     disk_list = list()
-    if spec["$dataItemDiscriminator"] == "EMPTY_LIST":
+    if "data" not in spec or not spec["data"]:
+    #if spec.get("$dataItemDiscriminator", None) == "EMPTY_LIST" or spec.get("metadata", {}).get("totalAvailableResults", 0) == 0:
       return []
     for disk in spec["data"]:
       disk.pop("$reserved")
@@ -165,7 +181,7 @@ class VG(object):
       print "Adding category: ({0}, {1}), uuid: {2} to VG: {3}, {4}".format(cat_key, cat_val, cat_uuid, self.name, self.uuid)
     else:
       print "Adding category: uuid: {0} to VG: {1}, {2}".format(cat_uuid, self.name, self.uuid)
-    url = "api/storage/{0}/config/volume-groups/{1}/$actions/associate-category".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/$actions/associate-category".format(VG_API_VERSION, self.uuid)
     body = {"categories": [{"entityType": "CATEGORY","extId":cat_uuid}]}
     #print body
     r = send_request("POST", self.pc_ip, url, json=body)
@@ -182,7 +198,7 @@ class VG(object):
       print "Removing category: ({0}, {1}), uuid: {2} to VG: {3}, {4}".format(cat_key, cat_val, cat_uuid, self.name, self.uuid)
     else:
       print "Removing category: uuid: {0} to VG: {1}, {2}".format(cat_uuid, self.name, self.uuid)
-    url = "api/storage/{0}/config/volume-groups/{1}/$actions/disassociate-category".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/$actions/disassociate-category".format(VG_API_VERSION, self.uuid)
     body = {"categories": [{"entityType": "CATEGORY","extId":cat_uuid}]}
     r = send_request("POST", self.pc_ip, url, json=body)
     print r.status_code, r.text
@@ -190,14 +206,14 @@ class VG(object):
     pass
 
   def get_categories(self):
-    url = "api/storage/{0}/config/volume-groups/{1}/category-associations".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/category-associations".format(VG_API_VERSION, self.uuid)
     r = send_request("GET", self.pc_ip, url)
     #print r.status_code, r.text
     spec = r.json()
     category_list = list()
-    if spec["$dataItemDiscriminator"] == "EMPTY_LIST":
+    if "data" not in spec or not spec["data"]:
+    #if spec.get("$dataItemDiscriminator", None) == "EMPTY_LIST" or spec.get("metadata", {}).get("totalAvailableResults", 0) == 0:
       return []
-    #print spec["data"]
     for category in spec["data"]:
       category.pop("$reserved")
       category.pop("$objectType")
@@ -206,11 +222,11 @@ class VG(object):
 
   # Iscsi ops
   def get_iscsi_attachments(self):
-    url = "api/storage/{0}/config/volume-groups/{1}/iscsi-client-attachments".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/iscsi-client-attachments".format(VG_API_VERSION, self.uuid)
     r = send_request("GET", self.pc_ip, url)
     spec = r.json()
     iscsi_client_list = list()
-    if spec["$dataItemDiscriminator"] == "EMPTY_LIST":
+    if "data" not in spec or not spec["data"]:
       return []
     for iscsi_client in spec["data"]:
       iscsi_client.pop("$reserved")
@@ -223,28 +239,29 @@ class VG(object):
     if VG_ETAG_REQUIRED:
       etag = self.get_etag_header(self.uuid)
     # Sample vg_attach_spec, {"iscsiInitiatorName": "iqn.1994-05.com.redhat:6582509746c4"}
-    url = "api/storage/{0}/config/volume-groups/{1}/$actions/attach-iscsi-client".format(VG_API_VERSION, self.uuid)
-    r = send_request("POST", self.pc_ip, url, json=vg_attach_spec, etag=etag)
+    url = "api/volumes/{0}/config/volume-groups/{1}/$actions/attach-iscsi-client".format(VG_API_VERSION, self.uuid)
+    ntnx_req_id = get_ntnx_req_id()
+    r = send_request("POST", self.pc_ip, url, json=vg_attach_spec, ntnx_req_id=ntnx_req_id, etag=etag)
     out = r.json()
     print out
-    return out["metadata"]["links"][0]["href"]
+    #return out["metadata"]["links"][0]["href"]
 
   def detach_iscsi(self, iscsi_client_id):
     etag = None
     if VG_ETAG_REQUIRED:
       etag = self.get_etag_header(self.uuid)
-    url = "api/storage/{0}/config/volume-groups/{1}/$actions/detach-iscsi-client/{2}".format(VG_API_VERSION, self.uuid, iscsi_client_id)
+    url = "api/volumes/{0}/config/volume-groups/{1}/$actions/detach-iscsi-client/{2}".format(VG_API_VERSION, self.uuid, iscsi_client_id)
     r = send_request("POST", self.pc_ip, url, etag=etag)
     out = r.json()
     return out["metadata"]["links"][0]["href"]
 
   # Hypervisor attachement ops
   def get_hyp_attachments(self):
-    url = "api/storage/{0}/config/volume-groups/{1}/vm-attachments".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}/vm-attachments".format(VG_API_VERSION, self.uuid)
     r = send_request("GET", self.pc_ip, url)
     spec = r.json()
     hyp_client_list = list()
-    if spec["$dataItemDiscriminator"] == "EMPTY_LIST":
+    if "data" not in spec or not spec["data"]:
       return []
     for hyp_client in spec["data"]:
       hyp_client.pop("$reserved")
@@ -266,21 +283,26 @@ class VG(object):
     etag = None
     if VG_ETAG_REQUIRED:
       etag = self.get_etag_header(self.uuid)
-    url = "api/storage/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
     spec = {"extId": self.uuid,"sharingStatus":"SHARED","enabledAuthentications":"NONE"}
-    r = send_request("PATCH", self.pc_ip, url, json=spec, etag=etag) 
+    ntnx_req_id = get_ntnx_req_id()
+    #r = send_request("PATCH", self.pc_ip, url, json=spec, etag=etag) 
+    r = send_request("PATCH", self.pc_ip, url, json=spec, ntnx_req_id=ntnx_req_id, etag=etag) 
     print r.status_code
 
   def add_chap(self, chap_password):
     etag = None
     if VG_ETAG_REQUIRED:
       etag = self.get_etag_header(self.uuid)
-    url = "api/storage/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
+    url = "api/volumes/{0}/config/volume-groups/{1}".format(VG_API_VERSION, self.uuid)
     spec = {"extId": self.uuid,"sharingStatus":"SHARED", "targetSecret":chap_password,"enabledAuthentications":"CHAP"}
-    r = send_request("PATCH", self.pc_ip, url, json=spec, etag=etag) 
+    ntnx_req_id = get_ntnx_req_id()
+    #r = send_request("PATCH", self.pc_ip, url, json=spec, etag=etag) 
+    r = send_request("PATCH", self.pc_ip, url, json=spec, ntnx_req_id=ntnx_req_id, etag=etag) 
     print r.status_code
     out = r.json()
-    print out["metadata"]["links"][0]["href"]
+    print out
+    #print out["metadata"]["links"][0]["href"]
 
   def create_recovery_point(self, rpt_name=None):
     if not rpt_name:

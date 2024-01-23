@@ -12,7 +12,7 @@ elif SETUP_TYPE == "AHV":
   from framework.vm_entity import VM
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 vg_obj = VG(IP)
 vm_obj = VM(IP)
@@ -167,14 +167,14 @@ def get_final_rp_spec(rp_name, volume_group_recovery_info_list, stage_list, rp_p
 
 if __name__=="__main__":
   if SETUP_NUM == 1:
-    source_az_map = {"uuid": "90d2c7e2-e012-4b1d-83df-d3ef403671f6", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
-    target_az_map = {"uuid": "09a2687f-5213-4bca-8efe-468ab7f3eb3f", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
+    source_az_map = {"uuid": "2baf1037-c69f-4ee1-889a-d9599226db8f", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-1", "uuid": "0005e1e0-6c1a-150c-0000-0000000109f6"}]}
+    target_az_map = {"uuid": "2baf1037-c69f-4ee1-889a-d9599226db8f", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-2", "uuid": "0005e27f-42d3-3e28-0000-000000010a01"}]}
   elif SETUP_NUM == 2:
-    source_az_map = {"uuid": "3e8d35d9-32ea-440b-8f9d-e5844ae98c71", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
-    target_az_map = {"uuid": "b47f5bb9-2a30-4d7a-b96d-a082af811c46", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
+    source_az_map = {"uuid": "cb981d52-c7cb-4b55-9f83-8fef437fb1ae", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
+    target_az_map = {"uuid": "b1144edc-9909-4bce-83dc-9484575ca6a5", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": []}
   elif SETUP_NUM == 3:
-    source_az_map = {"uuid": "9d244194-3a0d-4e99-8b9f-bdc810eb44a9", "recovery_network": "vlan0", "test_network": "vlan0", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-1", "uuid": "0005d42e-6093-8e6f-19db-0cc47a9b0b08"}]}
-    target_az_map = {"uuid": "9d244194-3a0d-4e99-8b9f-bdc810eb44a9", "recovery_network": "VM Network", "test_network": "VM Network", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-2", "uuid": "0005d41c-7e4c-e62b-0000-0000000129b9"}]}
+    source_az_map = {"uuid": "a2cd682f-a239-4216-ba11-f5239827ee6c", "recovery_network": "VM Network", "test_network": "VM Network", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-1", "uuid": "0005e873-e229-cae2-0000-000000010a00"}]}
+    target_az_map = {"uuid": "a2cd682f-a239-4216-ba11-f5239827ee6c", "recovery_network": "VM Network", "test_network": "VM Network", "cluster_reference_list": [{"kind": "cluster", "name": "PC-A-PE-2", "uuid": "0005e874-1111-7b0a-0000-0000000129b7"}]}
 
   rp_params = create_rp_parameters(source_az_map, target_az_map)
   vm_name_uuid_map = vm_obj.get_name_uuid_map()
@@ -206,7 +206,7 @@ if __name__=="__main__":
       vm_name_list.append(vm_pre + str(i))
       vg_name_list.append(vg_pre + str(i))
       vg_name_list.append(vg_pre + str(i + 100))
-    rp_name = "rp-vm-vg-attach"
+    rp_name = "rp-vm-vg-attach-123"
     print "Creating Recovery Plan: {0}".format(rp_name)
     stage_map = create_stage_list(vm_name_list, vm_name_uuid_map, vg_name_uuid_map, stage_delay=0)
     stage_list = [stage_map]
@@ -240,6 +240,7 @@ if __name__=="__main__":
       stage_list = [stage_map]
       #stage_list = []
       rp_spec = get_final_rp_spec(rp_name, volume_group_recovery_info_list, stage_list, rp_params)
+      #print rp_spec
       rp_obj.create(spec=rp_spec)
       #print rp_spec
       print "########\n"

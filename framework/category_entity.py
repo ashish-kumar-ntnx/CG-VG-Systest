@@ -11,18 +11,21 @@ class Category(object):
   def create(self, cat_key, cat_val, description=None):
     url = "api/prism/{0}/config/categories".format(CAT_API_VERSION)
     cat_key_dict = dict()
-    cat_key_dict["name"] = cat_key
+    cat_key_dict["key"] = cat_key
+    cat_key_dict["value"] = cat_val
     if description:
       cat_key_dict["description"] = cat_key
+    #print url, cat_key_dict
     r = send_request("POST", self.pc_ip, url, json=cat_key_dict)
     #print r.status_code, r.text
     out = r.json()
-    parentExtId = out["data"]["extId"]
-    cat_val_dict = {"parentExtId": parentExtId, "name": cat_val}
-    r = send_request("POST", self.pc_ip, url, json=cat_val_dict)
+    print out
+    #parentExtId = out["data"]["extId"]
+    #cat_val_dict = {"parentExtId": parentExtId, "name": cat_val}
+    #r = send_request("POST", self.pc_ip, url, json=cat_val_dict)
     #print r.status_code, r.text
-    out = r.json()
-    out = r.json()
+    #out = r.json()
+    #out = r.json()
     extId = out["data"]["extId"]
     c = Category(self.pc_ip, uuid=extId, cat_key=cat_key, cat_val=cat_val)
     return c
@@ -43,17 +46,26 @@ class Category(object):
       cat_key = fq_name[0]
       cat_val = fq_name[1]
     else:
-      url = "api/prism/{0}/config/categories?type=USER,SYSTEM,INTERNAL&fqName={1}/{2}".format(CAT_API_VERSION, cat_key, cat_val)
+      #url = "api/prism/{0}/config/categories?type=USER,SYSTEM,INTERNAL&fqName={1}/{2}".format(CAT_API_VERSION, cat_key, cat_val)
+      #r = send_request("GET", self.pc_ip, url)
+      #out = r.json()
+      ##print out
+      #if out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      #  print "Category not found."
+      #  return
+      #for i in out["data"]:
+      #  if i["fqName"] == "{0}/{1}".format(cat_key, cat_val):
+      #    cat_uuid = i["extId"]
+      #url = "api/prism/{0}/config/categories?$page=0&$filter=(fqName eq '{1}/{2}')".format(CAT_API_VERSION, cat_key, cat_val)
+      url = "api/prism/{0}/config/categories?$filter=(key eq '{1}') and (value eq '{2}')".format(CAT_API_VERSION, cat_key, cat_val)
       r = send_request("GET", self.pc_ip, url)
       out = r.json()
       #print out
-      if out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      #if out["$dataItemDiscriminator"] == "EMPTY_LIST":
+      if out["metadata"]["totalAvailableResults"] == 0:
         print "Category not found."
         return
-      for i in out["data"]:
-        if i["fqName"] == "{0}/{1}".format(cat_key, cat_val):
-          cat_uuid = i["extId"]
-      #cat_uuid = out["data"][0]["extId"]
+      cat_uuid = out["data"][0]["extId"]
     c = Category(self.pc_ip, uuid=cat_uuid, cat_key=cat_key, cat_val=cat_val)
     return c
 
@@ -72,22 +84,24 @@ class Category(object):
     url = "api/prism/{0}/config/categories?type=USER,SYSTEM,INTERNAL".format(CAT_API_VERSION)
     r = send_request("GET", self.pc_ip, url)
     out = r.json()
-    #print "---- 1 ----"
-    #print out
+    print "---- 1 ----"
+    print out
     for i in out["data"]:
-      cat_key = i["name"]
+      cat_key = i["key"]
+      #cat_key = i["name"]
       #url = "api/prism/{0}/config/categories/{1}?$view=SUMMARY".format(CAT_API_VERSION, i["extId"])
       url = "api/prism/{0}/config/categories?parentExtId={1}".format(CAT_API_VERSION, i["extId"])
       r = send_request("GET", self.pc_ip, url)
       out = r.json()
-      #print "---- 2 ----"
-      #print out
+      print "---- 2 ----"
+      print out
       if out["metadata"]["totalAvailableResults"] == 0:
         continue
       for i in out["data"]:
-        #print "---- 3 ----"
-        #print i
-        cat_val = i["name"]
+        print "---- 3 ----"
+        print i
+        #cat_val = i["name"]
+        cat_val = i["value"]
         uuid = i["extId"]
         category_list.append({"cat_key": cat_key, "cat_val": cat_val, "uuid": uuid})
     return category_list

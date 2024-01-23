@@ -1,4 +1,5 @@
 from lib import *
+import time
 from framework.cluster_entity import Cluster
 import paramiko
 import warnings
@@ -31,6 +32,7 @@ class VM(object):
     offset = 0
     r = send_request("POST", self.pc_ip, url, json={})
     out = r.json()
+    print out
     total_matches = out["metadata"]["total_matches"]
     #print total_matches
     if total_matches > length:
@@ -52,6 +54,7 @@ class VM(object):
     return out
 
   def get_name_uuid_map(self):
+    print "in mh_vm"
     vm_name_uuid_map = dict()
     out = self.list_all()
     for i in out["entities"]:
@@ -71,12 +74,16 @@ class VM(object):
     r = send_request("POST", self.pc_ip, url, json=body)
     out = r.json()
     try:
-      self.vm_ip = out["group_results"][0]["entity_results"][0]["data"][0]["values"][0]["values"][0]
-      return self.vm_ip
+      for ii in out["group_results"][0]["entity_results"][0]["data"][0]["values"][0]["values"]:
+        if ii.startswith("10"):
+          self.vm_ip = ii
+      #self.vm_ip = out["group_results"][0]["entity_results"][0]["data"][0]["values"][0]["values"][0]
+          return self.vm_ip
     except:
       return None
 
-  def execute(self, cmd, username="nutanix", password="nutanix/4u"):
+  #def execute(self, cmd, username="nutanix", password="nutanix/4u"):
+  def execute(self, cmd, username="root", password="nutanix/4u"):
     self.vm_ip = self.get_vm_ip()
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -95,8 +102,9 @@ class VM(object):
       spec = r.json()
     else:
       url = "api/nutanix/v3/mh_vms/list"
-      filter_criteria = {"filter": "vm_name=={0}".format(vm_name)}
-      r = send_request("POST", self.pc_ip, url, json=filter_criteria)
+      #filter_criteria = {"filter": "vm_name=={0}".format(vm_name)}
+      #r = send_request("POST", self.pc_ip, url, json=filter_criteria)
+      r = send_request("POST", self.pc_ip, url, json={})
       out = r.json()
       #print out
       for i in out["entities"]:
@@ -147,6 +155,7 @@ class VM(object):
     r = send_request("POST", self.pc_ip, url, json=spec)
     print r.status_code
 
+   
   def fanout_vm_rename(self, new_name, vm_hyp_id):
     generic_dto = dict()
     generic_dto["uuid"] = self.uuid
@@ -296,7 +305,8 @@ class VM(object):
       dsip = c.get_dsip()
     #cmd = "sudo /usr/sbin/iscsiadm -m discovery -t st -p {0}:{1}".format(dsip, iscsi_port)
     if not target_chap_secret:
-      cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
+      #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
+      cmd = "for disk in `/usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
     else:
       cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk -o update -n node.session.auth.password -v %s; sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, target_chap_secret, dsip, iscsi_port)
     print cmd
@@ -304,7 +314,8 @@ class VM(object):
     print out    
 
   def get_sd_disk_list(self):
-    cmd = "sudo fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
+    cmd = "fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
+    #cmd = "sudo fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
     _, out = self.execute(cmd)
     #print out
     return out
@@ -323,7 +334,8 @@ class VM(object):
     return self.iqn
 
   def generate_new_iqn(self):
-    cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | sudo tee /etc/iscsi/initiatorname.iscsi'
+    cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | tee /etc/iscsi/initiatorname.iscsi'
+    #cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | sudo tee /etc/iscsi/initiatorname.iscsi'
     _, out = self.execute(cmd)
     iqn = out.strip("\n").split("=")[1]
     self.iqn = iqn
@@ -338,14 +350,24 @@ class VM(object):
       dsip = c.get_dsip()
     #cmd = "sudo /usr/sbin/iscsiadm -m discovery -t st -p {0}:{1}".format(dsip, iscsi_port)
     #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s -u; done" %(dsip, iscsi_port, dsip, iscsi_port)
-    cmd = "sudo /usr/sbin/iscsiadm --mode node --logoutall=all"
+    #cmd = "sudo /usr/sbin/iscsiadm --mode node --logoutall=all"
+    cmd = "/usr/sbin/iscsiadm --mode node --logoutall=all"
     _, out = self.execute(cmd)
-    cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
+    cmd = "for disk in `/usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`;do /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
+    #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
     print cmd
     _, out = self.execute(cmd)
     print out    
 
   # NGT ops
+  def mount_ngt(self, pe_v1_ip):
+    print "Mounting NGT on vm: {0}".format(self.name)
+    url = "PrismGateway/services/rest/v1/vms/{0}/guest_tools/mount".format(self.uuid)
+    r = send_request("POST", pe_v1_ip, url)
+    print r.status_code
+    if r.status_code != 500:
+      time.sleep(1)
+
   def enable_ngt(self):
     pass
 
@@ -363,8 +385,7 @@ class VM(object):
     pass
 
   def trigger_fio(self):
-    cmd = "wget http://filer.dev.eng.nutanix.com:8080/Users/ashish.kumar/fio.sh; sudo chmod +x ~/fio.sh; nohup sudo ./fio.sh &"
-    #cmd = "wget http://filer.dev.eng.nutanix.com:8080/Users/ashish.kumar/fio.sh; sudo chmod +x ~/fio.sh; sudo ./fio.sh"
+    cmd = "wget http://uranus.corp.nutanix.com/~ashish.kumar/fio.sh; sudo chmod +x ~/fio.sh; nohup sudo ./fio.sh &"
     _, out = self.execute(cmd)
     print out
 

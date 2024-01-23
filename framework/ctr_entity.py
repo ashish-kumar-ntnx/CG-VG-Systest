@@ -15,6 +15,7 @@ class Ctr(object):
     pass
 
   def list_all(self, cluster_name=None):
+    cluster_name = "auto_cluster_prod_ashish_kumar_f39481cc998f"
     ctr_list = list()
     url = "api/nutanix/v3/groups"
     body = {"entity_type":"storage_container","group_member_attributes":[{"attribute":"container_name"},{"attribute":"cluster_name"},{"attribute":"cluster"}]}

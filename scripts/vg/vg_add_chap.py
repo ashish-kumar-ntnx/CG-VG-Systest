@@ -10,7 +10,15 @@ vg = VG(IP)
 
 vg_name_uuid_map = vg.get_name_uuid_map()
 
-
+for i in range(101, 155):
+  vg_name = "vg-a-{0}".format(i)
+  vg_uuid = vg_name_uuid_map[vg_name]
+  print "Adding CHAP password: {0} from VG: {1} - {2}".format(DEFAULT_CHAP_PASSWORD, vg_name, vg_uuid)
+  vg_obj=vg.get(vg_uuid=vg_uuid)
+  vg_obj.add_chap(DEFAULT_CHAP_PASSWORD)
+  
+  
+"""
 for i in range(1, 201, 10):
   for j in range(3):
     vg_name = "vg-a-{0}".format(i + j)
@@ -18,7 +26,7 @@ for i in range(1, 201, 10):
     print "Adding CHAP password: {0} from VG: {1} - {2}".format(DEFAULT_CHAP_PASSWORD, vg_name, vg_uuid)
     vg_obj=vg.get(vg_uuid=vg_uuid)
     vg_obj.add_chap(DEFAULT_CHAP_PASSWORD)
-"""
+
 #for i in range(1, 11):
 #for i in range(1, 101, 10):
 for i in range(1, 101):

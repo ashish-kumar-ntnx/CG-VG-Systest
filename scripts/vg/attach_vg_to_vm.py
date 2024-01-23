@@ -7,18 +7,21 @@ elif SETUP_TYPE == "AHV":
   from framework.vm_entity import VM
 import time
 import threading
-
+ENABLE_CLIENT_CHAP = True
 
 def get_vm_vg_list(CLUS_LIST):
   vm_vg_list = list()
+  #vm_pre = "DB-VM-"
+  #vg_a = "DB-VG-"
   vm_pre = "vm-"
   vg_a = "vg-a-"
   vg_b = "vg-b-"
 
   vg_index = 1
   vg_index = 1
-  for i in range(1, 101):
+  for i in range(1, 55):
     vg_pre = "vg-a-"
+    #vg_pre = "DB-VG-"
     cluster_name = CLUS_LIST[0] 
     tmp = dict()
     tmp["vm_name"] = vm_pre + str(i)
@@ -39,9 +42,12 @@ def do_attachment(vm_vg_map, VM_OBJ, VG_OBJ, vm_name_uuid_map, vg_name_uuid_map)
   vm_uuid = vm_name_uuid_map[vm_name]
   vm1 = VM_OBJ.get(vm_uuid=vm_uuid)
   vm1.enable_iscsi()
-  #vm1.generate_new_iqn()
+  vm1.generate_new_iqn()
   vm1.get_iqn()
   vm_attach_spec = {"iscsiInitiatorName": vm1.iqn}
+  if ENABLE_CLIENT_CHAP:
+    vm_attach_spec["clientSecret"] = "Nutanix.1234"
+    vm_attach_spec["enabledAuthentications"] = "CHAP"
   #print vm_attach_spec
   for vg in vg_list:
     attach_type = vg["attach_type"]
@@ -78,6 +84,7 @@ if __name__=="__main__":
     CLUS_LIST = TGT_CLUS_LIST
   else:
     IP = SRC_PC_IP
+    #IP = "10.33.128.61"
     CLUS_LIST = SRC_CLUS_LIST
     
   vm_vg_list = get_vm_vg_list(CLUS_LIST)

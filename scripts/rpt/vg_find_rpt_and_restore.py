@@ -1,13 +1,44 @@
 import sys
 from framework.vm_entity import VM
+from framework.lib import *
 from framework.rec_point_entity import RecoveryPoint
 from datetime import datetime
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 IP = SRC_PC_IP
-IP = "10.45.72.227"
 #IP = TGT_PC_IP
 
+vg_name = sys.argv[1]
+source_cluster_uuid = "0005dab7-18a3-8a23-7e83-0cc47a9b0a8c"
+
+spec = {"entity_type":"volume_group_recovery_point","group_member_sort_attribute":"creation_time_usecs","group_member_sort_order":"ASCENDING","group_member_attributes":[{"attribute": "top_level_recovery_point_uuid"}, {"attribute":"source_cluster_uuid"},{"attribute":"creation_time_usecs"}],"filter_criteria":"source_cluster_uuid=={0};volume_group_name==.*{1}.*".format(source_cluster_uuid ,vg_name)}
+
+print spec
+
+url = "api/nutanix/v3/groups"
+
+r = send_request("POST", IP, url, json=spec)
+out = r.json()
+
+if out["filtered_entity_count"] == 0:
+  print "No recovery point found for VG: {0} on cluster: {1}".format(vg_name, source_cluster_uuid)
+else:
+  rpt_uuid = out["group_results"][0]["entity_results"][0]["data"][0]["values"][0]["values"][0]
+  url = "api/dataprotection/v4.0.a2/config/recovery-points/{0}/volume-group-recovery-points".format(rpt_uuid)
+  r = send_request("GET", IP, url)
+  out = r.json()
+  vg_rpt_uuid = out["data"][0]["extId"]
+  print "For VG: {0} on cluster: {1} vg_rpt: {2}, top_level_rpt: {3}".format(vg_name, source_cluster_uuid, vg_rpt_uuid, rpt_uuid)
+
+
+url = "api/dataprotection/v4.0.a2/config/recovery-points/{0}/volume-group-recovery-points/{1}/$actions/restore".format(rpt_uuid, vg_rpt_uuid)
+#url = "api/dataprotection/v4.0.a2/config/recovery-points/{0}/$actions/restore".format(rpt_uuid)
+
+print "Restoring VG: {0}".format(vg_name)
+r = send_request("POST", IP, url, json={})
+print r.status_code
+
+"""
 vm_obj = VM(IP)
 rpt_obj = RecoveryPoint(IP)
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
@@ -51,3 +82,4 @@ for vg_uuid in ['8de65b96-3eed-47e0-a708-c4d2913a74dd', '84be13fc-8560-4c31-8c1a
   src_rpt_obj = rpt_obj.get(rpt_uuid_list[0], get_vm_vg_details=False)
   print "Restoring Recovery Point"
   src_rpt_obj.restore_rec_point() 
+"""

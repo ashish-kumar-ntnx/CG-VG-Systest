@@ -22,7 +22,7 @@ subnet_obj = Subnet(IP)
 
 #image_map = {"name": "CentOS_7_2", "uuid": "3417f9e9-9997-4bfa-b187-18fdd116020e"}
 #image_map = {"name": "RHEL_84", "uuid": "4dd57843-cf2f-4548-be3a-c8aaefa6d7c0"}
-image_map = {"name": "CENTOS_79", "uuid": "a259f0ba-ed88-45db-96c2-42d532e49365"}
+image_map = {"name": "CENTOS_79", "uuid": "c7edfdc6-f770-4752-b3f8-8066a1eadec8"}
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
 #vg_name_uuid_map = vg_obj.get_name_uuid_map()
 
@@ -31,11 +31,11 @@ for clus_name in CLUS_LIST:
   sub = subnet_obj.get(vlan_name="vlan0", cluster_name=clus_name)
   subnet_map = {"name": "vlan0", "uuid": sub.uuid}
   clus = clus_obj.get(cluster_name=clus_name)
-  clus_map = {"name": clus_name, "uuid": clus.uuid} 
-  #clus_map = {"name": "PC-A-PE-1", "uuid": "0005d41c-91e3-ada0-0000-0000000109f6"} 
+  #clus_map = {"name": clus_name, "uuid": clus.uuid} 
+  clus_map = {"name": "PC-A-PE-1", "uuid": "0006026b-4d8f-dfb2-064c-ac1f6b1c671c"} 
 
   if clus_name in ["PC-A-PE-1", "PC-B-PE-1"]:
-    start, end = 1, 101
+    start, end = 51, 55
   elif clus_name in ["PC-A-PE-2", "PC-B-PE-2"]:
     start, end = 101, 201
   for i in range(start, end):
@@ -45,8 +45,9 @@ for clus_name in CLUS_LIST:
       continue
     print "Need to create VM: {0} on cluster: {1}".format(vm_name, clus_name)
     self_service_ctr_uuid = ctr_name_uuid_map["SelfServiceContainer"]
+    #self_service_ctr_uuid = "c0eb49f0-f36b-4590-801d-8941fcdb72bc"
     vm_spec = get_vm_spec(vm_name, clus_map, image_map, subnet_map, self_service_ctr_uuid)
-    #pprint(vm_spec)
+    #print(vm_spec)
     task_uuid = vm_obj.create(vm_spec)
     print "VM: {0}, Cluster: {1}, Create Task UUID: {2}".format(vm_name, clus_name, task_uuid)
     time.sleep(1)

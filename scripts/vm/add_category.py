@@ -6,7 +6,7 @@ elif SETUP_TYPE == "AHV":
   from framework.vm_entity import VM
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 START = 1
 END = 101
@@ -22,6 +22,7 @@ def get_vm_category_list():
   vm_index = 1
   for i in range(1, 11):
     if PROTECTION_TYPE == "category":
+      #cat_key = "self-az-cat-" + str(i)
       cat_key = "cat-" + str(i)
       cat_val = "val-" + str(i)
     elif PROTECTION_TYPE == "explicit":
@@ -30,8 +31,8 @@ def get_vm_category_list():
     for i in range(10):
       vm_name = "vm-" + str(vm_index)
       vm_index += 1
-      if vm_name not in vm_name_list:
-      #if vm_name not in vm_name_uuid_map:
+      #if vm_name not in vm_name_list:
+      if vm_name not in vm_name_uuid_map:
         continue
       vm_uuid = vm_name_uuid_map[vm_name]
       vm_category_list.append({"vm_name": vm_name, "vm_uuid": vm_uuid, "cat_key": cat_key, "cat_val": cat_val})

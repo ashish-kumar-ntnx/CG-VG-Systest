@@ -27,7 +27,7 @@ for i in range(START, END):
     ],
     "filter_criteria":"vm_live_entity_uuid_list=={0};disk_group_live_entity_uuid_list=={1}".format(vm_live_entity_uuid_list, disk_group_live_entity_uuid_list)
   }
-  print filter_criteria
+  #print filter_criteria
   out = src_rpt_obj.get_groups_response(filter_criteria)
   rpt_uuid_list = list()
   if out["filtered_group_count"] > 0:

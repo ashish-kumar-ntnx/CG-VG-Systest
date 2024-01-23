@@ -8,8 +8,8 @@ import time
 
 IP = TGT_PC_IP
 CLUS_LIST = TGT_CLUS_LIST
-IP = SRC_PC_IP
-CLUS_LIST = SRC_CLUS_LIST
+#IP = SRC_PC_IP
+#CLUS_LIST = SRC_CLUS_LIST
 
 vm_obj = VM(IP)
 
@@ -17,11 +17,13 @@ vm_obj = VM(IP)
 
 vm_name = sys.argv[1]
 
-if int(vm_name.split("-")[1]) < 101:
-  cluster_name = CLUS_LIST[0]
-else:
-  pass
-  cluster_name = CLUS_LIST[1]
+cluster_name = CLUS_LIST[0]
+
+#if int(vm_name.split("-")[1]) < 101:
+#  cluster_name = CLUS_LIST[0]
+#else:
+#  pass
+#  cluster_name = CLUS_LIST[1]
 
 
 vm = vm_obj.get(vm_name=vm_name, cluster_name=cluster_name)

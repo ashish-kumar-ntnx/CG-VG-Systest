@@ -29,17 +29,19 @@ vg_name_uuid_map = vg_obj.get_name_uuid_map()
 for clus_name in CLUS_LIST:
   ctr_name_uuid_map = ctr_obj.get_name_uuid_map(cluster_name=clus_name)
   clus = clus_obj.get(cluster_name=clus_name)
-  cluster_uuid = clus.uuid
-  #cluster_uuid = "0005c91e-935e-3827-0000-0000000109fe"
+  #cluster_uuid = clus.uuid
+  cluster_uuid = "0006026b-4d8f-dfb2-064c-ac1f6b1c671c"
 
   if clus_name in ["PC-A-PE-1", "PC-B-PE-1"]:
     vg_prefix = "vg-a-"
+    #vg_prefix = "DB-VG-"
   elif clus_name in ["PC-A-PE-2", "PC-B-PE-2"]:
     vg_prefix = "vg-b-"
 
   #start, end = 51, 60
-  start, end = 1, 101
+  start, end = 1, 55
   for i in range(start, end):
+    #vg_name_list = [vg_prefix + str(i)]
     vg_name_list = [vg_prefix + str(i), vg_prefix + str(i + 100)]
     for vg_name in vg_name_list:
       #if vg_name not in ["vg-a-19", "vg-a-60"]:
@@ -48,7 +50,7 @@ for clus_name in CLUS_LIST:
       vg = vg_obj.get(vg_uuid=vg_uuid)
       print "checking VG: {0} - {1}".format(vg_name, vg_uuid)
       #print vg.disk_list
-      if len(vg.disk_list) != 10:
+      if len(vg.disk_list) != 2:
         vg_spec = get_vg_spec(vg_name, clus_name, cluster_uuid, ctr_name_uuid_map)
         spec = vg_spec["spec"]
         disk_list = vg_spec["disk_list"]

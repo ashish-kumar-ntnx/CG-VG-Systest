@@ -6,7 +6,7 @@ from framework.category_entity import Category
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST
 
 IP = TGT_PC_IP
-#IP = SRC_PC_IP
+IP = SRC_PC_IP
 
 vg = VG(IP)
 cg = CG(IP)

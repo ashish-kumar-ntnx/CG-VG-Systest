@@ -11,8 +11,8 @@ import threading
 
 IP = TGT_PC_IP
 CLUS_LIST = TGT_CLUS_LIST
-#IP = SRC_PC_IP
-#CLUS_LIST = SRC_CLUS_LIST
+IP = SRC_PC_IP
+CLUS_LIST = SRC_CLUS_LIST
 
 vm_obj = VM(IP)
 
@@ -28,6 +28,8 @@ c2_dsip = None
 
 START = 1
 END = 101
+
+#START, END = 11, 21
 
 def logout(vm_name, dsip):
   if vm_name not in vm_name_uuid_map:

@@ -1,20 +1,23 @@
 from framework.vm_entity import VM
 from framework.image_entity import Image
 from framework.config import SRC_PC_IP, SRC_CLUS_LIST, TGT_PC_IP, TGT_CLUS_LIST, SETUP_TYPE
-if SETUP_TYPE == "ESX":
-  from framework.mh_vm_entity import VM
-elif SETUP_TYPE == "AHV":
-  from framework.vm_entity import VM
+from framework.mh_vm_entity import VM
+#SETUP_TYPE == "ESX"
+#if SETUP_TYPE == "ESX":
+#elif SETUP_TYPE == "AHV":
+#  from framework.vm_entity import VM
 
 IP = TGT_PC_IP
 #IP = SRC_PC_IP
 vm_prefix = "vm-"
 #vm_prefix = "Nutanix-Test-vm-"
+IP = "10.46.144.59"
 
 START = 1
 END = 101
 vm_obj = VM(IP)
 vm_name_uuid_map = vm_obj.get_name_uuid_map()
+print vm_name_uuid_map
 
 def get_vm_host_uuid(v):
   vm_json = v.get_v1_json()
@@ -37,18 +40,7 @@ def vm_memory_update(vm_name, memory=1024):
   generic_dto["vm_features"] = {}
   spec_for_vm_update = [{"generic_dto": generic_dto, "cluster_uuid": "0005c79d-d6b9-66eb-0000-000000011f37"}]
   v.fanout_update(vm_spec=spec_for_vm_update)
-
 """
-for i in range(1, 101):
-  vm_name = "vm-{0}_clone".format(i)
-  if vm_name in vm_name_uuid_map:
-    v = vm_obj.get(vm_uuid=vm_name_uuid_map[vm_name])
-    vm_hyp_id = get_vm_host_uuid(v)
-    new_name = "vm-{0}".format(i)
-    print "Renaming {0} to {1}".format(vm_name, new_name)
-    v.fanout_vm_rename(new_name, vm_hyp_id)
-
-
 for i in range(1, 101):
   vm_name = "vm-{0}".format(i)
   if vm_name in vm_name_uuid_map:
@@ -60,7 +52,7 @@ for i in range(1, 101):
     print "Adding NIC {0} to {1}".format(adapter_type, vm_name)
     v.fanout_add_nic(network_uuid, adapter_type)
 
-"""
+
 for i in range(1, 101):
   vm_name = vm_prefix + str(i)
   vm_uuid = vm_name_uuid_map[vm_name]
@@ -79,7 +71,7 @@ for i in range(1, 101):
   power_state = "on"
   v.fanout_power_state(power_state)
 
-"""
+
 for i in range(1, 101, 10):
   for k in range(3):
     vm_name = vm_prefix + str(i + k)
@@ -89,9 +81,20 @@ for i in range(1, 101, 10):
     vm_name = vm_prefix + str(i + k)
     #print vm_name
     vm_memory_update(vm_name, memory=1024)
-"""    
+
   
 #for i in range(START, END):
 #  vm_uuid = vm_name_uuid_map[vm_name]
 #  v = vm_obj.get(vm_uuid=vm_uuid) 
 #  vm_memory_update(v, memory=1024)
+"""
+for i in range(1, 161):
+  old_vm_name = "Nutanix-Test-ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_" + str(i).rjust(4, '0')
+  new_vm_name = "ST_PC-A-PE-1_vdb-vdi_dp-cmp-dl_centos7_scsi_" + str(i).rjust(4, '0')
+  if old_vm_name in vm_name_uuid_map:
+    v = vm_obj.get(vm_uuid=vm_name_uuid_map[old_vm_name])
+    vm_hyp_id = get_vm_host_uuid(v)
+    print "Renaming {0} to {1}".format(old_vm_name, new_vm_name)
+    v.fanout_vm_rename(new_vm_name, vm_hyp_id)
+
+

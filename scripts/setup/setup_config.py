@@ -45,8 +45,8 @@ def get_config_map(clus):
     vm_start = 1
     vm_end = 100
   elif clus in ["PC-A-PE-2", "PC-B-PE-2"]:
-    ctr_start = 11
-    ctr_end = 20
+    ctr_start = 1
+    ctr_end = 10
     vg_prefix = vg_b_prefix
     vg_start = 1
     vg_end = 200
@@ -75,7 +75,7 @@ def get_vm_spec(vm_name, clus_map, image_map, subnet_map, self_service_ctr_uuid)
   vm_spec["spec"]["resources"]["disk_list"][2]["storage_config"]["storage_container_reference"]["uuid"] = self_service_ctr_uuid
   return vm_spec
 
-def get_vg_spec(vg_name, cluster_name, cluster_uuid, ctr_name_uuid_map, disk_count=10, disk_size_range=[1,3], vg_password="Nutanix.1234", create_vg_with_chap=False):
+def get_vg_spec(vg_name, cluster_name, cluster_uuid, ctr_name_uuid_map, disk_count=2, disk_size_range=[1,3], vg_password="Nutanix.1234", create_vg_with_chap=False):
   config_map = get_config_map(cluster_name)
   ctr_list = config_map["ctr_list"]
   #vg_list = config_map["vg_list"]

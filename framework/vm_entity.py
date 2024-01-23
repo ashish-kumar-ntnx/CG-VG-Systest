@@ -31,6 +31,7 @@ class VM(object):
     offset = 0
     r = send_request("POST", self.pc_ip, url, json={})
     out = r.json()
+    #print out
     total_matches = out["metadata"]["total_matches"]
     #print total_matches
     if total_matches > length:
@@ -76,8 +77,8 @@ class VM(object):
     except:
       return None
 
-  #def execute(self, cmd, username="root", password="nutanix/4u"):
-  def execute(self, cmd, username="nutanix", password="nutanix/4u"):
+  #def execute(self, cmd, username="nutanix", password="nutanix/4u"):
+  def execute(self, cmd, username="root", password="nutanix/4u"):
     self.vm_ip = self.get_vm_ip()
     ssh_client = paramiko.SSHClient()
     ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -122,6 +123,7 @@ class VM(object):
     url = "api/nutanix/v3/vms/{0}".format(self.uuid)
     r = send_request("PUT", self.pc_ip, url, json=vm_spec)
     out = r.json()
+    #print out
     return out["status"]["execution_context"]["task_uuid"]
 
   def migrate(self):
@@ -208,17 +210,20 @@ class VM(object):
       dsip = c.get_dsip()
     #cmd = "sudo /usr/sbin/iscsiadm -m discovery -t st -p {0}:{1}".format(dsip, iscsi_port)
     if not target_chap_secret:
-      cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
+      cmd = "for disk in `/usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
+      #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, dsip, iscsi_port)
     else:
-      cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk -o update -n node.session.auth.password -v %s; sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, target_chap_secret, dsip, iscsi_port)
+      cmd = "for disk in `/usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do /usr/sbin/iscsiadm -m node --targetname $disk -o update -n node.session.auth.password -v %s; /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, target_chap_secret, dsip, iscsi_port)
+      #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk -o update -n node.session.auth.password -v %s; sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --login; done" %(dsip, iscsi_port, target_chap_secret, dsip, iscsi_port)
     print cmd
     _, out = self.execute(cmd)
     print out    
 
   def get_sd_disk_list(self):
-    cmd = "sudo fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
+    cmd = "fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
+    #cmd = "sudo fdisk -l |grep '^Disk /dev/sd' |grep -v 'sda:' |awk '{print $2}' | awk -F [:] '{print $1}' |xargs"
     _, out = self.execute(cmd)
-    #print out
+    print out
     return out
 
   def iscsi_get_logged_in_targets(self, dsip=None, iscsi_port=3260):
@@ -235,7 +240,8 @@ class VM(object):
     return self.iqn
 
   def generate_new_iqn(self):
-    cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | sudo tee /etc/iscsi/initiatorname.iscsi'
+    cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | tee /etc/iscsi/initiatorname.iscsi'
+    #cmd = 'echo "InitiatorName=`/sbin/iscsi-iname`" | sudo tee /etc/iscsi/initiatorname.iscsi'
     _, out = self.execute(cmd)
     iqn = out.strip("\n").split("=")[1]
     self.iqn = iqn
@@ -250,14 +256,24 @@ class VM(object):
       dsip = c.get_dsip()
     #cmd = "sudo /usr/sbin/iscsiadm -m discovery -t st -p {0}:{1}".format(dsip, iscsi_port)
     #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s -u; done" %(dsip, iscsi_port, dsip, iscsi_port)
-    cmd = "sudo /usr/sbin/iscsiadm --mode node --logoutall=all"
+    cmd = "/usr/sbin/iscsiadm --mode node --logoutall=all"
+    #cmd = "sudo /usr/sbin/iscsiadm --mode node --logoutall=all"
     _, out = self.execute(cmd)
-    cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
+    cmd = "for disk in `/usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
+    #cmd = "for disk in `sudo /usr/sbin/iscsiadm -m discovery -t st -p %s:%s |awk '{print $2}'`; do sudo /usr/sbin/iscsiadm -m node --targetname $disk --portal %s:%s --logout; done" %(dsip, iscsi_port, dsip, iscsi_port)
     print cmd
     _, out = self.execute(cmd)
     print out    
 
   # NGT ops
+  def mount_ngt(self, pe_v1_ip):
+    print "Mounting NGT on vm: {0}".format(self.name)
+    url = "PrismGateway/services/rest/v1/vms/{0}/guest_tools/mount".format(self.uuid)
+    r = send_request("POST", pe_v1_ip, url)
+    print r.status_code
+    if r.status_code != 500:
+      time.sleep(1)
+
   def enable_ngt(self):
     pass
 
@@ -281,15 +297,17 @@ class VM(object):
     print out
 
   def enable_vdbench(self):
-    cmd = "sudo yum install unzip java -y"
+    #cmd = "sudo yum install unzip java -y"
+    cmd = "yum install unzip java -y"
     print "Installing dependent libs for vdbench"
     self.execute(cmd)
     print "Downloading setup_vdbench50407.sh file to VM: {0}".format(self.name)
     #cmd = "curl -O http://filer.dev.eng.nutanix.com:8080/Users/ashish.kumar/vdbench_files/setup_vdbench50407.sh"
-    cmd = "curl -O http://uranus.corp.nutanix.com/~ashish.kumar/setup_vdbench50407.sh"
+    cmd = "curl -O http://uranus.corp.nutanix.com/~ashish.kumar/setup_vdbench50407_root.sh"
     self.execute(cmd)
     print "Running vdbench setup script."
-    cmd = "chmod +x /home/nutanix/setup_vdbench50407.sh; /home/nutanix/setup_vdbench50407.sh"
+    #cmd = "chmod +x /home/nutanix/setup_vdbench50407.sh; /home/nutanix/setup_vdbench50407.sh"
+    cmd = "chmod +x /root/setup_vdbench50407_root.sh; /root/setup_vdbench50407_root.sh"
     self.execute(cmd)
 
   def trigger_vdbench(self):

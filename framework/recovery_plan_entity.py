@@ -27,6 +27,11 @@ class RecoveryPlan(object):
     r = send_request("DELETE", self.pc_ip, url)
     print r.status_code
 
+  def edit(self, spec):
+    url = "api/nutanix/v3/recovery_plans/{0}".format(self.uuid)
+    r = send_request("PUT", self.pc_ip, url, json=spec)
+    print r.status_code
+
   def list_all(self):
     url = "api/nutanix/v3/recovery_plans/list"
     r = send_request("POST", self.pc_ip, url, json={})
@@ -49,4 +54,4 @@ class RecoveryPlan(object):
         print "Recovery Plan not found"
         return
     r = RecoveryPlan(self.pc_ip, uuid=rp_uuid, spec=spec, name=spec["spec"]["name"])
-    return s
+    return r
